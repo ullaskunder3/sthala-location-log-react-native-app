@@ -26,7 +26,7 @@ export function LocationMap() {
                                 longitude: host.coords.long
                             }}
                             title={host.locationName}
-                            pinColor={"#ffd1dc"}
+                            pinColor={"#f85b80"}
                         />)
                     }
                 })}
