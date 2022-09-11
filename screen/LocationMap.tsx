@@ -1,20 +1,25 @@
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, Dimensions } from 'react-native';
 import { useContext } from 'react';
 import { LocationContext } from '../context/locationContext';
-import MapView, { Marker } from 'react-native-maps';
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 
 export function LocationMap() {
     const { locationStamp } = useContext(LocationContext)
 
     return (
-        <View>
-            <MapView mapType={"mutedStandard"}>
-                {locationStamp.map((host:any, i:any) => {
-                    console.log("data: ",host);
-                    
+        <View style={styles.container}>
+            <MapView
+                style={styles.map}
+                mapType={"mutedStandard"}
+                provider={PROVIDER_GOOGLE}
+                >
+                {locationStamp.map((host: any, i: any) => {
+                    console.log("data: ", host);
+
                     if (host.coords.lat && host.coords.long) {
                         console.log("TEST", host.coords.lat);
-                        return (<Marker
+                        return (
+                        <Marker
                             key={i}
                             coordinate={{
                                 latitude: host.coords.lat,
@@ -26,11 +31,16 @@ export function LocationMap() {
                     }
                 })}
             </MapView>
+
         </View>
     )
 }
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+    },
+    map: {
+        width: Dimensions.get('window').width,
+        height: Dimensions.get('window').height,
     },
 });
