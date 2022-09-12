@@ -64,9 +64,15 @@ export function Home() {
       });
     })();
 
+    if(locationStamp.length === 5){
+      setMaxStackMsg(true)
+    }else{
+      setMaxStackMsg(false)
+    }
+
     const interval = setInterval(() => {
       if (locationStamp.length < 5) {
-        console.log('boolean', locationStamp.length < 5, locationStamp.length);
+        // console.log('boolean', locationStamp.length < 5, locationStamp.length);
         setLocationStamp(prevState => [...prevState, {
           id: `bd7acbea-c1b1-46c2-aed5-3ad5 ${Math.random()} 3`,
           location: `First Item ${Math.random()}`,
@@ -104,7 +110,6 @@ export function Home() {
         style={styles.flatList}
         data={locationStamp}
         renderItem={renderItem}
-        initialNumToRender={30}
         keyExtractor={item => item.id}
         ListEmptyComponent={() => rednderEmptyMessage()}
       />
@@ -114,7 +119,7 @@ export function Home() {
         style={styles.touchableOpacityStyle}
         onPress={() => onClickClearAll()}
       >
-        <Text style={{ fontWeight: 'bold' }}>Clear all</Text>
+        <Text style={[{ fontWeight: '800'}, {color: maxStackMsg?'#ff5100':'black'}]}>Clear all</Text>
       </TouchableOpacity>
 
     </View>
@@ -160,7 +165,6 @@ const styles = StyleSheet.create({
   },
 
   touchableOpacityStyle: {
-    borderColor: '#00000044',
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',

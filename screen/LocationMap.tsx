@@ -13,20 +13,17 @@ export function LocationMap() {
                 mapType={"mutedStandard"}
                 provider={PROVIDER_GOOGLE}
                 >
-                {locationStamp.map((host: any, i: any) => {
-                    console.log("data: ", host);
-
-                    if (host.coords.lat && host.coords.long) {
-                        console.log("TEST", host.coords.lat);
+                {locationStamp.map((location: any, i: any) => {
+                    if (location.coords.lat && location.coords.long) {
                         return (
                         <Marker
                             key={i}
                             coordinate={{
-                                latitude: host.coords.lat,
-                                longitude: host.coords.long
+                                latitude: location.coords.lat,
+                                longitude: location.coords.long
                             }}
-                            title={host.locationName}
-                            pinColor={"#f85b80"}
+                            title={location.locationName}
+                            pinColor={"#f8a25b"}
                         />)
                     }
                 })}
