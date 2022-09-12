@@ -1,16 +1,18 @@
 import { StyleSheet, Text, View, FlatList, TouchableOpacity } from 'react-native';
 import * as Location from 'expo-location';
 import { useEffect, useState, useContext } from 'react';
-const MAX_STACK: number = 5;
 import { AntDesign } from '@expo/vector-icons';
 import { LocationContext } from '../context/locationContext';
 import { getCurrentTimeAndDate } from '../api/getCurrentTime';
 import { LocationInterface } from '../Interface/Location';
 import fetchReverseGeolocation from '../api/fetchData';
+import { tostMessage } from '../api/toastMessage';
+import uuid from 'react-native-uuid';
+const MAX_STACK: number = 30;
 
 export function Home() {
   const { locationStamp, setLocationStamp } = useContext(LocationContext)
-
+    
   const [location, setLocation] = useState<LocationInterface>({ latitude: 0, longitude: 0 });
   const [currentTime, setCurrentTime] = useState<Date | any>();
   const [currentDate, setCurrentDate] = useState<Date | any>();
@@ -63,68 +65,85 @@ export function Home() {
         latitude: location.coords["latitude"],
         longitude: location.coords["longitude"]
       });
+      if(locationStamp.length < 15) apiCall(location.coords["latitude"], location.coords["longitude"]);
     })();
 
-    if(locationStamp.length === 5){
-      setMaxStackMsg(true)
-    }else{
-      setMaxStackMsg(false)
+    if (locationStamp.length === 15) {
+    setMaxStackMsg(true)
+  } else {
+    setMaxStackMsg(false)
+  }
+
+  const interval = setInterval(() => {
+    if (locationStamp.length < 15) {
+
+      apiCall(location.latitude, location.longitude)
     }
+  }, 300000);
+  return () => clearInterval(interval);
 
-    const interval = setInterval(() => {
-      if (locationStamp.length < 5) {
-        // console.log('boolean', locationStamp.length < 5, locationStamp.length);
-        setLocationStamp(prevState => [...prevState, {
-          id: `bd7acbea-c1b1-46c2-aed5-3ad5 ${Math.random()} 3`,
-          location: `First Item ${Math.random()}`,
-          locationName: 'tokyo',
-          coords: { lat: location.latitude, long: location.longitude },
-        }])
-      }
-    }, 1000);
-    return () => clearInterval(interval);
+}, [locationStamp]);
 
-  }, [locationStamp]);
+function apiCall(latitude, longitude){
+  fetchReverseGeolocation(latitude, longitude)
+  .then(response => {
+    console.log('did run', response);
+    if (response !== '404') {
+      const {data} = response;
+      setLocationStamp(prevState => [...prevState, {
+        id: uuid.v4(),
+        location: data[0].label,
+        locationName: `${data[0].country_code} - ${data[0].region_code}`,
+        coords: { lat: location.latitude, long: location.longitude },
+      }]) 
 
-  return (
-    <View style={styles.container}>
+    } else {
+      tostMessage('Something Went Worng')
+    }
+  }).catch(() => {
+    tostMessage('Something Went Worng')
+  })  
+}
 
-      {errorMsg ? <Text>Permission to access location was denied</Text> :
-        <View style={styles.currentLocatinContainer}>
-          <View>
-            <Text>Current Location</Text>
-          </View>
-          <View >
-            <Text style={styles.currentLocatinText} >{location?.longitude ? location.longitude : 'Waiting...'}</Text>
-          </View>
-          <View style={styles.currentLocationStamps}>
-            <Text style={styles.currentLocatinDate}>{currentDate},</Text>
-            <Text style={styles.currentLocatinTime} >{currentTime}</Text>
-          </View>
-        </View>}
+return (
+  <View style={styles.container}>
 
-      <View>
-        <Text style={{ paddingVertical: 10, paddingLeft: 10 }}>Previous Locations</Text>
-      </View>
+    {errorMsg ? <Text>Permission to access location was denied</Text> :
+      <View style={styles.currentLocatinContainer}>
+        <View>
+          <Text>Current Location</Text>
+        </View>
+        <View >
+          <Text style={styles.currentLocatinText} ellipsizeMode='tail'>{locationStamp[1]?.location ? locationStamp[1]?.location : 'Waiting...'}</Text>
+        </View>
+        <View style={styles.currentLocationStamps}>
+          <Text style={styles.currentLocatinDate}>{currentDate},</Text>
+          <Text style={styles.currentLocatinTime} >{currentTime}</Text>
+        </View>
+      </View>}
 
-      <FlatList
-        style={styles.flatList}
-        data={locationStamp}
-        renderItem={renderItem}
-        keyExtractor={item => item.id}
-        ListEmptyComponent={() => rednderEmptyMessage()}
-      />
-
-      <TouchableOpacity
-        activeOpacity={0.7}
-        style={styles.touchableOpacityStyle}
-        onPress={() => onClickClearAll()}
-      >
-        <Text style={[{ fontWeight: '800'}, {color: maxStackMsg?'#ff5100':'black'}]}>Clear all</Text>
-      </TouchableOpacity>
-
+    <View>
+      <Text style={{ paddingVertical: 10, paddingLeft: 10 }}>Previous Locations</Text>
     </View>
-  )
+
+    <FlatList
+      style={styles.flatList}
+      data={locationStamp}
+      renderItem={renderItem}
+      keyExtractor={item => item.id}
+      ListEmptyComponent={() => rednderEmptyMessage()}
+    />
+
+    <TouchableOpacity
+      activeOpacity={0.7}
+      style={styles.touchableOpacityStyle}
+      onPress={() => onClickClearAll()}
+    >
+      <Text style={[{ fontWeight: '800' }, { color: maxStackMsg ? '#ff5100' : 'black' }]}>Clear all</Text>
+    </TouchableOpacity>
+
+  </View>
+)
 }
 
 const styles = StyleSheet.create({
@@ -166,6 +185,7 @@ const styles = StyleSheet.create({
   },
 
   touchableOpacityStyle: {
+    backgroundColor: 'white',
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
