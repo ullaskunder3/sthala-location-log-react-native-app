@@ -6,6 +6,7 @@ import { AntDesign } from '@expo/vector-icons';
 import { LocationContext } from '../context/locationContext';
 import { getCurrentTimeAndDate } from '../api/getCurrentTime';
 import { LocationInterface } from '../Interface/Location';
+import fetchReverseGeolocation from '../api/fetchData';
 
 export function Home() {
   const { locationStamp, setLocationStamp } = useContext(LocationContext)
