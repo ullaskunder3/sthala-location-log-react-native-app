@@ -14,14 +14,16 @@ export function Home() {
   const [currentTime, setCurrentTime] = useState<Date | any>();
   const [currentDate, setCurrentDate] = useState<Date | any>();
   const [errorMsg, setErrorMsg] = useState('');
+  const [maxStackMsg, setMaxStackMsg] = useState(false)
 
   const onClickDelete = (recentLocationID) => {
     const newRecentList = locationStamp.filter(item => item.id != recentLocationID)
     setLocationStamp(newRecentList)
   }
   const onClickClearAll = () => {
-    setLocationStamp({})
+    setLocationStamp([])
   }
+
   const rednderEmptyMessage = () => {
     <View>
       <Text>You have no employers in your favorite list.</Text>
@@ -45,16 +47,6 @@ export function Home() {
     <Item id={item.id} location={item.location} locationName={item.locationName} />
   );
 
-  function setIntervalX(callback, delay, repetitions) {
-    var currentCounter = 0;
-    var intervalID = window.setInterval(function () {
-      callback();
-      if (++currentCounter === repetitions) {
-        window.clearInterval(intervalID);
-      }
-    }, delay);
-  }
-
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
@@ -72,19 +64,20 @@ export function Home() {
       });
     })();
 
-    let counter = 0;
+    const interval = setInterval(() => {
+      if (locationStamp.length < 5) {
+        console.log('boolean', locationStamp.length < 5, locationStamp.length);
+        setLocationStamp(prevState => [...prevState, {
+          id: `bd7acbea-c1b1-46c2-aed5-3ad5 ${Math.random()} 3`,
+          location: `First Item ${Math.random()}`,
+          locationName: 'tokyo',
+          coords: { lat: location.latitude, long: location.longitude },
+        }])
+      }
+    }, 1000);
+    return () => clearInterval(interval);
 
-    setIntervalX(() => {
-      console.log('did run', counter++);
-      setLocationStamp(prevState => [...prevState, {
-        id: `bd7acbea-c1b1-46c2-aed5-3ad5 ${Math.random()} 3`,
-        location: `First Item ${Math.random()}`,
-        locationName: 'tokyo',
-        coords: { lat: location.latitude, long: location.longitude },
-      }])
-    }, 2, 4)
-
-  }, []);
+  }, [locationStamp]);
 
   return (
     <View style={styles.container}>
