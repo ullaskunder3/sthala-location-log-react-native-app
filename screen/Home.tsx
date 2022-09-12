@@ -10,19 +10,19 @@ import { LocationInterface } from '../Interface/Location';
 export function Home() {
   const { locationStamp, setLocationStamp } = useContext(LocationContext)
 
-  const [location, setLocation] = useState<LocationInterface>({ latitude:0, longitude:0 });
+  const [location, setLocation] = useState<LocationInterface>({ latitude: 0, longitude: 0 });
   const [currentTime, setCurrentTime] = useState<Date | any>();
   const [currentDate, setCurrentDate] = useState<Date | any>();
   const [errorMsg, setErrorMsg] = useState('');
 
   const onClickDelete = (recentLocationID) => {
-    const newRecentList = locationStamp.filter(item=>item.id!=recentLocationID)
+    const newRecentList = locationStamp.filter(item => item.id != recentLocationID)
     setLocationStamp(newRecentList)
   }
-  const onClickClearAll = ()=>{
+  const onClickClearAll = () => {
     setLocationStamp({})
   }
-  const rednderEmptyMessage = ()=>{
+  const rednderEmptyMessage = () => {
     <View>
       <Text>You have no employers in your favorite list.</Text>
     </View>
@@ -39,7 +39,7 @@ export function Home() {
       </TouchableOpacity>
     </View>
   );
-  
+
 
   const renderItem = ({ item }) => (
     <Item id={item.id} location={item.location} locationName={item.locationName} />
@@ -48,12 +48,12 @@ export function Home() {
   function setIntervalX(callback, delay, repetitions) {
     var currentCounter = 0;
     var intervalID = window.setInterval(function () {
-       callback();
-       if (++currentCounter === repetitions) {
-           window.clearInterval(intervalID);
-       }
+      callback();
+      if (++currentCounter === repetitions) {
+        window.clearInterval(intervalID);
+      }
     }, delay);
-}
+  }
 
   useEffect(() => {
     (async () => {
@@ -70,17 +70,19 @@ export function Home() {
         latitude: location.coords["latitude"],
         longitude: location.coords["longitude"]
       });
-
-      setIntervalX(()=>{
-        setLocationStamp(prevState => [...prevState,       {
-          id: `bd7acbea-c1b1-46c2-aed5-3ad5 ${Math.random()} 3`,
-          location: `First Item ${Math.random()}`,
-          locationName: 'tokyo',
-          coords:{lat: location.coords["latitude"], long: location.coords["longitude"]},
-        }])
-      }, 2, 4)
-
     })();
+
+    let counter = 0;
+
+    setIntervalX(() => {
+      console.log('did run', counter++);
+      setLocationStamp(prevState => [...prevState, {
+        id: `bd7acbea-c1b1-46c2-aed5-3ad5 ${Math.random()} 3`,
+        location: `First Item ${Math.random()}`,
+        locationName: 'tokyo',
+        coords: { lat: location.latitude, long: location.longitude },
+      }])
+    }, 2, 4)
 
   }, []);
 
@@ -111,14 +113,14 @@ export function Home() {
         renderItem={renderItem}
         initialNumToRender={30}
         keyExtractor={item => item.id}
-        ListEmptyComponent={()=>rednderEmptyMessage()}
+        ListEmptyComponent={() => rednderEmptyMessage()}
       />
 
       <TouchableOpacity
         activeOpacity={0.7}
         style={styles.touchableOpacityStyle}
-        onPress={()=>onClickClearAll()}
-        >
+        onPress={() => onClickClearAll()}
+      >
         <Text style={{ fontWeight: 'bold' }}>Clear all</Text>
       </TouchableOpacity>
 
