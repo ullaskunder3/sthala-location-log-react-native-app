@@ -14,7 +14,7 @@ using:
 somewhat fixed with reverse geocoding:
 |                                                                       1                                                                      | 2                                                                                                                                            |
 |:--------------------------------------------------------------------------------------------------------------------------------------------:|----------------------------------------------------------------------------------------------------------------------------------------------|
-| ![Screenshot_20220913-005820_Expo Go](https://user-images.githubusercontent.com/66258652/189740887-4cfc7257-8ba3-4f48-b22d-e06d0cb88fef.jpg) | ![Screenshot_20220913-005919_Expo Go](https://user-images.githubusercontent.com/66258652/189740937-7b01a46f-0c8b-4459-b7e6-12cbe967a023.jpg) |
+| ![Screenshot_20220913-005820_Expo Go](https://user-images.githubusercontent.com/66258652/190230832-f41ba057-2d7f-468b-92af-06fc8a6ea220.jpeg) | ![Screenshot_20220913-005919_Expo Go](https://user-images.githubusercontent.com/66258652/189740937-7b01a46f-0c8b-4459-b7e6-12cbe967a023.jpg) |
 
 
 Test view:
