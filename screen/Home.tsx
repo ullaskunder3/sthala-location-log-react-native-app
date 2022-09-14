@@ -40,7 +40,7 @@ export function Home() {
         <Text>{locationName}</Text>
       </View>
       <TouchableOpacity activeOpacity={0.7} style={styles.clearBtn} onPress={() => onClickDelete(id)}>
-        <AntDesign name="close" size={24} color="black" />
+        <Text>Clear</Text>
       </TouchableOpacity>
     </View>
   );
@@ -65,24 +65,24 @@ export function Home() {
         latitude: location.coords["latitude"],
         longitude: location.coords["longitude"]
       });
-      if(locationStamp.length < 15) apiCall(location.coords["latitude"], location.coords["longitude"]);
+      if(locationStamp.length < MAX_STACK) apiCall(location.coords["latitude"], location.coords["longitude"]);
     })();
 
-    if (locationStamp.length === 15) {
+    if (locationStamp.length === MAX_STACK) {
     setMaxStackMsg(true)
   } else {
     setMaxStackMsg(false)
   }
 
   const interval = setInterval(() => {
-    if (locationStamp.length < 15) {
+    if (locationStamp.length < MAX_STACK) {
 
       apiCall(location.latitude, location.longitude)
     }
   }, 300000);
   return () => clearInterval(interval);
 
-}, [locationStamp]);
+}, []);
 
 function apiCall(latitude, longitude){
   fetchReverseGeolocation(latitude, longitude)
@@ -200,7 +200,9 @@ const styles = StyleSheet.create({
     // right: 0,
   },
   clearBtn: {
-    // backgroundColor: 'blue'
+    backgroundColor: '#f5f5f5',
+    paddingHorizontal: 10,
+    paddingVertical: 5
   },
   flexCol: {
     backgroundColor: 'white',
