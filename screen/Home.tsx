@@ -1,7 +1,6 @@
-import { StyleSheet, Text, View, FlatList, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, FlatList, TouchableOpacity, Alert } from 'react-native';
 import * as Location from 'expo-location';
 import { useEffect, useState, useContext } from 'react';
-import { AntDesign } from '@expo/vector-icons';
 import { LocationContext } from '../context/locationContext';
 import { getCurrentTimeAndDate } from '../api/getCurrentTime';
 import { LocationInterface } from '../Interface/Location';
@@ -12,7 +11,8 @@ const MAX_STACK: number = 30;
 
 export function Home() {
   const { locationStamp, setLocationStamp } = useContext(LocationContext)
-    
+
+  const [locationPrevView, setLocationPreView] = useState('');
   const [location, setLocation] = useState<LocationInterface>({ latitude: 0, longitude: 0 });
   const [currentTime, setCurrentTime] = useState<Date | any>();
   const [currentDate, setCurrentDate] = useState<Date | any>();
@@ -24,16 +24,34 @@ export function Home() {
     setLocationStamp(newRecentList)
   }
   const onClickClearAll = () => {
-    setLocationStamp([])
+    Alert.alert(
+      'clear all location?',
+      'only previous location or only current location',
+      [
+        {
+          text: 'Only Previous',
+          onPress: () => {
+            setLocationStamp([]);
+          }
+        },
+        {
+          text: 'Current',
+          onPress: () => {
+            alert('Done')
+          }
+        }
+      ]
+    )
+    // should I clear only previous location or should I also clear the current location
   }
 
-  const rednderEmptyMessage = () => {
-    <View>
-      <Text>You have no employers in your favorite list.</Text>
+  const rednderEmptyMessage = () => (
+    <View style={styles.recentloctaionMessage}>
+      <Text>Your Recent Location</Text>
     </View>
-  }
+  )
 
-  const Item = ({ id, location, locationName }) => (
+  const Item = ({ id, location, locationName }:any) => (
     <View style={styles.flexCol}>
       <View style={styles.listItemContent} >
         <Text>{location}</Text>
@@ -46,7 +64,7 @@ export function Home() {
   );
 
 
-  const renderItem = ({ item }) => (
+  const renderItem = ({ item }:any) => (
     <Item id={item.id} location={item.location} locationName={item.locationName} />
   );
 
@@ -65,91 +83,107 @@ export function Home() {
         latitude: location.coords["latitude"],
         longitude: location.coords["longitude"]
       });
-      if(locationStamp.length < MAX_STACK) apiCall(location.coords["latitude"], location.coords["longitude"]);
     })();
 
+    if (location.latitude !== 0) apiCall(location.latitude, location.longitude)
+    fetchReverseGeolocation(location.latitude, location.longitude)
+      .then(response => {
+        if (response !== '404') {
+          const { data } = response;
+          setLocationPreView(data[0].label)
+        } else {
+          tostMessage('Something Went Worng')
+        }
+      }).catch(() => {
+        tostMessage('Something Went Worng')
+      })
+
     if (locationStamp.length === MAX_STACK) {
-    setMaxStackMsg(true);
-  } else {
-    setMaxStackMsg(false);
+      setMaxStackMsg(true);
+    } else {
+      setMaxStackMsg(false);
+    }
+
+    // call every 5 minute
+    const interval = setInterval(() => {
+      if (locationStamp.length < MAX_STACK) {
+        setLocationPreView('');
+        apiCall(location.latitude, location.longitude)
+      }
+    }, 30000);
+    return () => clearInterval(interval);
+
+  }, [location.latitude, location.longitude]);
+
+  function apiCall(latitude:any, longitude:any) {
+    fetchReverseGeolocation(latitude, longitude)
+      .then(response => {
+        // console.log('did run', response);
+        if (response !== '404') {
+          const { data } = response;
+          setLocationStamp(prevState => [...prevState, {
+            id: uuid.v4(),
+            location: data[0].label,
+            locationName: `${data[0].country_code} - ${data[0].region_code}`,
+            coords: { lat: location.latitude, long: location.longitude },
+          }])
+
+        } else {
+          tostMessage('Something Went Worng')
+        }
+      }).catch(() => {
+        tostMessage('Something Went Worng')
+      })
   }
 
-  // call every 5 minute
-  const interval = setInterval(() => {
-    if (locationStamp.length < MAX_STACK) {
+  return (
+    <View style={styles.container}>
 
-      apiCall(location.latitude, location.longitude)
-    }
-  }, 300000);
-  return () => clearInterval(interval);
+      {errorMsg ? <Text>Permission to access location was denied</Text> :
+        <View style={styles.currentLocatinContainer}>
+          <View>
+            <Text>Current Location</Text>
+          </View>
+          <View >
+            <Text style={styles.currentLocatinText} ellipsizeMode='tail'>{locationStamp[1]?.location ? locationStamp[1]?.location : locationPrevView}</Text>
+          </View>
+          <View style={styles.currentLocationStamps}>
+            <Text style={styles.currentLocatinDate}>{currentDate},</Text>
+            <Text style={styles.currentLocatinTime} >{currentTime}</Text>
+          </View>
+        </View>}
 
-}, [location.latitude, location.longitude]);
+      <View>
+        <Text style={{ paddingVertical: 10, paddingLeft: 10 }}>Previous Locations</Text>
+      </View>
 
-function apiCall(latitude, longitude){
-  fetchReverseGeolocation(latitude, longitude)
-  .then(response => {
-    // console.log('did run', response);
-    if (response !== '404') {
-      const {data} = response;
-      setLocationStamp(prevState => [...prevState, {
-        id: uuid.v4(),
-        location: data[0].label,
-        locationName: `${data[0].country_code} - ${data[0].region_code}`,
-        coords: { lat: location.latitude, long: location.longitude },
-      }]) 
+      <FlatList
+        style={styles.flatList}
+        data={locationStamp}
+        renderItem={renderItem}
+        keyExtractor={item => item.id}
+        ListEmptyComponent={() => rednderEmptyMessage()}
+      />
 
-    } else {
-      tostMessage('Something Went Worng')
-    }
-  }).catch(() => {
-    tostMessage('Something Went Worng')
-  })  
-}
+      <TouchableOpacity
+        activeOpacity={0.7}
+        style={styles.touchableOpacityStyle}
+        onPress={() => onClickClearAll()}
+      >
+        <Text style={[{ fontWeight: '800' }, { color: maxStackMsg ? '#ff5100' : 'black' }]}>Clear all</Text>
+      </TouchableOpacity>
 
-return (
-  <View style={styles.container}>
-
-    {errorMsg ? <Text>Permission to access location was denied</Text> :
-      <View style={styles.currentLocatinContainer}>
-        <View>
-          <Text>Current Location</Text>
-        </View>
-        <View >
-          <Text style={styles.currentLocatinText} ellipsizeMode='tail'>{locationStamp[1]?.location ? locationStamp[1]?.location : 'Waiting...'}</Text>
-        </View>
-        <View style={styles.currentLocationStamps}>
-          <Text style={styles.currentLocatinDate}>{currentDate},</Text>
-          <Text style={styles.currentLocatinTime} >{currentTime}</Text>
-        </View>
-      </View>}
-
-    <View>
-      <Text style={{ paddingVertical: 10, paddingLeft: 10 }}>Previous Locations</Text>
     </View>
-
-    <FlatList
-      style={styles.flatList}
-      data={locationStamp}
-      renderItem={renderItem}
-      keyExtractor={item => item.id}
-      ListEmptyComponent={() => rednderEmptyMessage()}
-    />
-
-    <TouchableOpacity
-      activeOpacity={0.7}
-      style={styles.touchableOpacityStyle}
-      onPress={() => onClickClearAll()}
-    >
-      <Text style={[{ fontWeight: '800' }, { color: maxStackMsg ? '#ff5100' : 'black' }]}>Clear all</Text>
-    </TouchableOpacity>
-
-  </View>
-)
+  )
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  recentloctaionMessage: {
+    backgroundColor: '#f5e6dc',
+    alignItems: 'center',
   },
   currentLocatinContainer: {
     backgroundColor: '#ffffff',
@@ -222,7 +256,7 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     elevation: 2
   },
-  listItemContent:{
+  listItemContent: {
     flex: 1
   }
 });

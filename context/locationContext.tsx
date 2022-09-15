@@ -7,7 +7,6 @@ const LocationContext = createContext<any|null>(null);
 
 const LocationProvider = ({children}:any)=>{
     const [locationStamp, setLocationStamp] = useState([])
-    // console.log('fromcontext', locationStamp);
     
     const [useCords, setUserCords] = useState({
         latitude: '',
