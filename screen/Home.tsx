@@ -35,7 +35,7 @@ export function Home() {
 
   const Item = ({ id, location, locationName }) => (
     <View style={styles.flexCol}>
-      <View>
+      <View style={styles.listItemContent} >
         <Text>{location}</Text>
         <Text>{locationName}</Text>
       </View>
@@ -69,9 +69,9 @@ export function Home() {
     })();
 
     if (locationStamp.length === MAX_STACK) {
-    setMaxStackMsg(true)
+    setMaxStackMsg(true);
   } else {
-    setMaxStackMsg(false)
+    setMaxStackMsg(false);
   }
 
   // call every 5 minute
@@ -83,12 +83,12 @@ export function Home() {
   }, 300000);
   return () => clearInterval(interval);
 
-}, []);
+}, [location.latitude, location.longitude]);
 
 function apiCall(latitude, longitude){
   fetchReverseGeolocation(latitude, longitude)
   .then(response => {
-    console.log('did run', response);
+    // console.log('did run', response);
     if (response !== '404') {
       const {data} = response;
       setLocationStamp(prevState => [...prevState, {
@@ -221,5 +221,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.29,
     shadowRadius: 5,
     elevation: 2
+  },
+  listItemContent:{
+    flex: 1
   }
 });

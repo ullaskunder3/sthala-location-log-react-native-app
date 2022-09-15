@@ -6,7 +6,7 @@ async function fetchReverseGeolocation(lat: any, long:any) {
     
     try {
         const response = await axios.get(`http://api.positionstack.com/v1/reverse?access_key=${API_KEY}&query=${lat},${long}&limit=1`);           
-        console.log("from res",response.data);
+        // console.log("from res",response.data);
         return response.data;
         
     } catch (error) {
