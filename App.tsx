@@ -23,8 +23,6 @@ export default function App() {
               } else if (route.name === 'location') {
                 iconName = focused ? 'enviroment' : 'enviromento';
               }
-
-              // You can return any component that you like here!
               return <AntDesign name={iconName} size={size} color={color} />;
             },
             tabBarActiveTintColor: 'tomato',

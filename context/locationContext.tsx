@@ -8,13 +8,14 @@ const LocationContext = createContext<any|null>(null);
 const LocationProvider = ({children}:any)=>{
     const [locationStamp, setLocationStamp] = useState([])
     
-    const [useCords, setUserCords] = useState({
+    const [userCoords, setUserCords] = useState({
         latitude: '',
         longitude: ''
     });
+    const [locationLabel, setLocationLabel] = useState('');
 
     return(
-        <LocationContext.Provider value={{locationStamp, setLocationStamp, useCords, setUserCords}}>
+        <LocationContext.Provider value={{locationStamp, setLocationStamp, userCoords, setUserCords, locationLabel, setLocationLabel}}>
             {children}
         </LocationContext.Provider>
     )

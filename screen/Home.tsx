@@ -10,7 +10,7 @@ import uuid from 'react-native-uuid';
 const MAX_STACK: number = 30;
 
 export function Home() {
-  const { locationStamp, setLocationStamp } = useContext(LocationContext)
+  const { locationStamp, setLocationStamp, setUserCords, setLocationLabel } = useContext(LocationContext)
 
   const [locationPrevView, setLocationPreView] = useState('');
   const [location, setLocation] = useState<LocationInterface>({ latitude: 0, longitude: 0 });
@@ -19,8 +19,8 @@ export function Home() {
   const [errorMsg, setErrorMsg] = useState('');
   const [maxStackMsg, setMaxStackMsg] = useState(false)
 
-  const onClickDelete = (recentLocationID) => {
-    const newRecentList = locationStamp.filter(item => item.id != recentLocationID)
+  const onClickDelete = (recentLocationID:any) => {
+    const newRecentList = locationStamp.filter((item: { id: any; }) => item.id != recentLocationID)
     setLocationStamp(newRecentList)
   }
   const onClickClearAll = () => {
@@ -91,7 +91,13 @@ export function Home() {
       .then(response => {
         if (response !== '404') {
           const { data } = response;
+          
           setLocationPreView(data[0].label)
+          setUserCords({
+            latitude: data[0].latitude,
+            longitude: data[0].longitude,
+          })
+          setLocationLabel(data[0].label);
         } else {
           tostMessage('Something Went Worng')
         }
@@ -121,7 +127,7 @@ export function Home() {
         // console.log('did run', response);
         if (response !== '404') {
           const { data } = response;
-          setLocationStamp(prevState => [...prevState, {
+          setLocationStamp((prevState: any) => [...prevState, {
             id: uuid.v4(),
             location: data[0].label,
             locationName: `${data[0].country_code} - ${data[0].region_code}`,

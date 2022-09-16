@@ -1,10 +1,11 @@
 import { StyleSheet, View, Dimensions } from 'react-native';
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import { LocationContext } from '../context/locationContext';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 
 export function LocationMap() {
-    const { locationStamp } = useContext(LocationContext)
+    const { userCoords, locationLabel } = useContext(LocationContext)
+    console.log(locationLabel);
 
     return (
         <View style={styles.container}>
@@ -12,21 +13,20 @@ export function LocationMap() {
                 style={styles.map}
                 mapType={"mutedStandard"}
                 provider={PROVIDER_GOOGLE}
-                >
-                {locationStamp.map((location: any, i: any) => {
-                    if (location.coords.lat && location.coords.long) {
-                        return (
-                        <Marker
-                            key={i}
-                            coordinate={{
-                                latitude: location.coords.lat,
-                                longitude: location.coords.long
-                            }}
-                            title={location.locationName}
-                            pinColor={"#f8a25b"}
-                        />)
-                    }
-                })}
+                initialRegion={{
+                    latitude: userCoords.latitude,
+                    longitude: userCoords.longitude,
+                    latitudeDelta: 0.0922,
+                    longitudeDelta: 0.0421,
+                }}>
+                <Marker
+                    coordinate={{
+                        latitude: userCoords.latitude,
+                        longitude: userCoords.longitude,
+                    }}
+                    title={locationLabel}
+                    pinColor={"#f8a25b"}
+                />
             </MapView>
 
         </View>
