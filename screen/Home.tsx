@@ -37,7 +37,8 @@ export function Home() {
         {
           text: 'Current',
           onPress: () => {
-            alert('Done')
+            console.log('done');
+            setLocation({ latitude: 0, longitude: 0 })
           }
         }
       ]
@@ -107,7 +108,6 @@ export function Home() {
     // call every 20 seconds
     const interval = setInterval(() => {
       if (locationStamp.length < MAX_STACK) {
-        setLocationPreView('');
         apiCall(location.latitude, location.longitude)
       }
     }, 20000);
