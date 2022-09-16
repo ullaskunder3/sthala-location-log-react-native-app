@@ -104,7 +104,7 @@ export function Home() {
       setMaxStackMsg(false);
     }
 
-    // call every 5 minute
+    // call every 20 seconds
     const interval = setInterval(() => {
       if (locationStamp.length < MAX_STACK) {
         setLocationPreView('');
