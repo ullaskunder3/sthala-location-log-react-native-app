@@ -110,7 +110,7 @@ export function Home() {
         setLocationPreView('');
         apiCall(location.latitude, location.longitude)
       }
-    }, 30000);
+    }, 20000);
     return () => clearInterval(interval);
 
   }, [location.latitude, location.longitude]);
