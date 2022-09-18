@@ -24,26 +24,7 @@ export function Home() {
     setLocationStamp(newRecentList)
   }
   const onClickClearAll = () => {
-    Alert.alert(
-      'clear all location?',
-      'only previous location or only current location',
-      [
-        {
-          text: 'Only Previous',
-          onPress: () => {
-            setLocationStamp([]);
-          }
-        },
-        {
-          text: 'Current',
-          onPress: () => {
-            console.log('done');
-            setLocation({ latitude: 0, longitude: 0 })
-          }
-        }
-      ]
-    )
-    // should I clear only previous location or should I also clear the current location
+    setLocationStamp([]);
   }
 
   const rednderEmptyMessage = () => (
